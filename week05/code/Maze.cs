@@ -14,42 +14,47 @@ public class Maze
         this.Data = data;
     }
 
-    /// <summary>
-    /// #############
-    /// # Problem 5 #
-    /// #############
-    /// A maze is defined as a list of lists.  The outer list
-    /// contains a representation of each row in the maze.  You can
-    /// assume that the maze will be square (same number of rows
-    /// and columns). The inner lists show what is in the maze:
-    /// 
-    /// 0 = Wall (You can't go through this)
-    /// 1 = Open Path (You can go through this)
-    /// 2 = End (You want to get to this point to win)
-    /// 
-    /// See the Prove instructions for graphical representations of
-    /// the 2 test mazes defined below.
-    /// 
-    /// The 'IsEnd' and the 'IsValidMove' functions are
-    /// already written for you.  These functions assume that the first
-    /// square in the maze is (0,0).  These functions also assume
-    /// that you can't leave the boundaries of the maze and that you 
-    /// can't visit the same square in the same path (no circles).
-    /// 
-    /// The 'currPath' variable is a list of (x,y) tuples that 
-    /// represent the path we are currently on.  If you add a new position
-    /// to the path, make sure that you add the tuple to the list so that the
-    /// 'IsValidMove' function works properly.
-    /// 
-    /// The goal is to implement the 'SolveMaze' function to return
-    /// all paths to the end square using recursion.  When you find a path, 
-    /// then adding it to the return value list will be as simple as 'results.Add(currPath.AsString())'.
-    /// </summary>
-    /// <summary>
-    /// Helper function to determine if the (x,y) position is at 
-    /// the end of the maze.
-    /// </summary>
-    public bool IsEnd(int x, int y)
+    public static void SolveMaze(List<string> results, Maze maze, int x = 0, int y = 0, List<ValueTuple<int, int>>? currPath = null)
+{
+    if (currPath == null)
+    {
+        currPath = new List<ValueTuple<int, int>>();
+    }
+
+    // Add current position
+    currPath.Add((x, y));
+
+    // Check if end
+    if (maze.IsEnd(x, y))
+    {
+        results.Add(currPath.AsString());
+        currPath.RemoveAt(currPath.Count - 1);
+        return;
+    }
+
+    // Directions: Right, Down, Left, Up
+    int[,] directions = {
+        {1, 0},
+        {0, 1},
+        {-1, 0},
+        {0, -1}
+    };
+
+    for (int i = 0; i < 4; i++)
+    {
+        int newX = x + directions[i, 0];
+        int newY = y + directions[i, 1];
+
+        // Fix other
+        if (maze.IsValidMove(currPath, newX, newY))
+        {
+            SolveMaze(results, maze, newX, newY, currPath);
+        }
+    }
+
+    // Backtrack
+    currPath.RemoveAt(currPath.Count - 1);
+}    public bool IsEnd(int x, int y)
     {
         return Data[y * Height + x] == 2;
     }
